@@ -14,7 +14,7 @@
           ".validate": "newData.isNumber()"
         },
         "questions": {
-          ".validate": "newData.isArray()"
+          ".validate": "newData.isArray() || newData.val() === null"
         },
         "hostId": {
           ".validate": "newData.isString()"
@@ -23,16 +23,15 @@
           ".validate": "newData.isNumber()"
         },
         "startedAt": {
-          ".validate": "newData.isNumber()"
+          ".validate": "newData.isNumber() || newData.val() === null"
         },
         "roundStartedAt": {
-          ".validate": "newData.isNumber()"
+          ".validate": "newData.isNumber() || newData.val() === null"
         },
         "players": {
           "$playerId": {
             ".read": true,
             ".write": "$playerId === auth.uid",
-            ".validate": "newData.hasChildren(['id', 'name', 'animal', 'hair', 'clothes', 'accessory', 'score'])",
             "id": {
               ".validate": "newData.val() === auth.uid"
             },
@@ -60,7 +59,6 @@
           "$playerId": {
             ".read": true,
             ".write": "$playerId === auth.uid",
-            ".validate": "newData.hasChildren(['id', 'name', 'index', 'elapsed', 'correct'])",
             "id": {
               ".validate": "newData.val() === auth.uid"
             },
@@ -77,10 +75,10 @@
               ".validate": "newData.isBoolean()"
             },
             "timedOut": {
-              ".validate": "newData.isBoolean()"
+              ".validate": "newData.isBoolean() || newData.val() === null"
             },
             "answeredAt": {
-              ".validate": "newData.isNumber()"
+              ".validate": "newData.isNumber() || newData.val() === null"
             }
           }
         }

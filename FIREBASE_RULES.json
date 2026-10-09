@@ -1,0 +1,90 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomId": {
+        ".read": true,
+        ".write": "root.child('rooms').child($roomId).child('hostId').val() === auth.uid || !root.child('rooms').child($roomId).exists()",
+        "code": {
+          ".validate": "newData.isString()"
+        },
+        "status": {
+          ".validate": "newData.val() === 'lobby' || newData.val() === 'game' || newData.val() === 'result'"
+        },
+        "round": {
+          ".validate": "newData.isNumber()"
+        },
+        "questions": {
+          ".validate": "newData.isArray()"
+        },
+        "hostId": {
+          ".validate": "newData.isString()"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "startedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "roundStartedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "players": {
+          "$playerId": {
+            ".read": true,
+            ".write": "$playerId === auth.uid",
+            ".validate": "newData.hasChildren(['id', 'name', 'animal', 'hair', 'clothes', 'accessory', 'score'])",
+            "id": {
+              ".validate": "newData.val() === auth.uid"
+            },
+            "name": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 30"
+            },
+            "animal": {
+              ".validate": "newData.isString()"
+            },
+            "hair": {
+              ".validate": "newData.isString()"
+            },
+            "clothes": {
+              ".validate": "newData.isString()"
+            },
+            "accessory": {
+              ".validate": "newData.isString()"
+            },
+            "score": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            }
+          }
+        },
+        "answers": {
+          "$playerId": {
+            ".read": true,
+            ".write": "$playerId === auth.uid",
+            ".validate": "newData.hasChildren(['id', 'name', 'index', 'elapsed', 'correct'])",
+            "id": {
+              ".validate": "newData.val() === auth.uid"
+            },
+            "name": {
+              ".validate": "newData.isString()"
+            },
+            "index": {
+              ".validate": "newData.isNumber()"
+            },
+            "elapsed": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 15000"
+            },
+            "correct": {
+              ".validate": "newData.isBoolean()"
+            },
+            "timedOut": {
+              ".validate": "newData.isBoolean()"
+            },
+            "answeredAt": {
+              ".validate": "newData.isNumber()"
+            }
+          }
+        }
+      }
+    }
+  }
+}

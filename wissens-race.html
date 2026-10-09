@@ -17,6 +17,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, update, get, child } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDpaOmIRzNmcGOSLOYPm_fPjWUkEwlmdNU",
@@ -31,6 +32,35 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
+let authReady = false;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    try {
+      const result = await signInAnonymously(auth);
+      console.log("Anonymous login ok", result.user.uid);
+    } catch (error) {
+      console.error("Anonymous login failed", error);
+    }
+  } else {
+    authReady = true;
+    console.log("Firebase user ready:", user.uid);
+    if (me.id !== user.uid) {
+      me = { ...me, id: user.uid };
+    }
+  }
+});
+
+async function ensureAuth() {
+  if (!auth.currentUser) {
+    const result = await signInAnonymously(auth);
+    me = { ...me, id: result.user.uid };
+    return result.user;
+  }
+  me = { ...me, id: auth.currentUser.uid };
+  return auth.currentUser;
+}
 
 const QUESTIONS = [
   {d:"Anfänger",q:"Wie heißt die Hauptstadt von Deutschland?",a:["Berlin","Bonn","Hamburg","München"],c:0},
@@ -93,16 +123,16 @@ let screen="home", name="", code="", host=false, room=null, players=[], round=0,
 let me={id:uid(),name:"",animal:"🦊",hair:"✨",clothes:"👕",accessory:"Ohne",score:0};
 let roomRef=null, playersRef=null, roomListener=null, playersListener=null;
 
-const app=$("app");
+const appElement=$("app");
 
 function avatar(p,large=false){return `<div class="avatar"><span class="hair">${p.hair||"✨"}</span><span>${p.animal||"🦊"}</span><span class="clothes">${p.clothes||"👕"}</span>${p.accessory&&p.accessory!=="Ohne"?`<span>${p.accessory}</span>`:""}</div>`}
 function btn(text,action,disabled=false,ghost=false){return `<button class="btn ${ghost?"ghost":""}" data-action="${action}" ${disabled?"disabled":""}>${text}</button>`}
 
 function render(){
-if(screen==="home"){app.innerHTML=`<div class="layout"><section class="panel"><h2>Dein Quiz-Tier</h2><p class="muted">Gestalte deine Figur und betrete die Arena.</p><div class="avatarbox">${avatar(me,true)}</div><label>Spielername</label><input id="name" class="field" placeholder="Dein Name" value="${esc(name)}"><label>Tiergesicht</label><div class="options">${ANIMALS.map(x=>pick("animal",x)).join("")}</div><label>Haare / Effekt</label><div class="options">${HAIR.map(x=>pick("hair",x)).join("")}</div><label>Kleidung</label><div class="options">${CLOTHES.map(x=>pick("clothes",x)).join("")}</div><label>Accessoire</label><div class="options">${ACCESSORIES.map(x=>pick("accessory",x)).join("")}</div></section><section class="stack"><div class="panel"><h2>👑 Neuen Raum eröffnen</h2><p class="muted">Du leitest das Spiel und startest 15 zufällige Fragen aus dem 50er-Pool.</p>${btn("Raum erstellen","create")}</div><div class="panel"><h2>↪ Mit Code beitreten</h2><input id="code" class="field center" maxlength="6" inputmode="numeric" placeholder="6-stelliger Raumcode" value="${esc(code)}"><div>${btn("Beitreten","join",code.length!==6)}</div></div></section></div>`}
-if(screen==="lobby"){app.innerHTML=`<section class="panel center"><div class="muted">Raumcode</div><div class="roomcode">${room.code}</div><button class="pill" data-action="copy">▢ Code kopieren</button><h2 style="margin-top:30px">Spieler in der Lobby (${players.length})</h2><div class="players">${players.map(p=>`<div class="player">${avatar(p)}<b>${esc(p.name)}</b></div>`).join("")}</div>${host?btn("▶ Spiel starten","start"): `<p style="color:#fde68a">Der Gastgeber startet gleich…</p>`}</section>`}
-if(screen==="game"){const q=room?.questions?.[round];if(!q){screen="result";render();return}const ranking=[...players].sort((a,b)=>b.score-a.score);app.innerHTML=`<div class="gamegrid"><section><div class="topline"><span class="pill">Frage ${round+1}/${room.questions.length} · ${q.d}</span><span class="timer ${time<=5?"low":""}">${time}s</span></div><div class="bar"><div style="width:${time/15*100}%"></div></div><div class="panel"><div class="question">${q.q}</div><div class="answers">${q.a.map((x,i)=>`<button class="answer ${locked&&i===q.c?"correct":locked&&selected===i?"wrong":""}" data-answer="${i}" ${locked?"disabled":""}><span class="letter">${String.fromCharCode(65+i)}</span>${x}</button>`).join("")}</div>${locked?`<div class="feedback"><div>${avatar(me)}<b>${selected===q.c?"Richtig! 🎉":"Richtig ist: "+q.a[q.c]}</b><div class="muted small">Warte auf die Mitspieler.</div></div>${host?`<div>${btn("Punkte berechnen","score",false,true)} ${btn("Weiter","next")}</div>`:""}</div>`:""}</div></section><aside class="panel"><h2>🏆 Rangliste</h2>${ranking.map((p,i)=>`<div class="rankrow"><b>${i+1}</b>${avatar(p)}<div><b>${esc(p.name)}</b><div class="score">${p.score} Punkte</div></div></div>`).join("")}</aside></div>`}
-if(screen==="result"){const ranking=[...players].sort((a,b)=>b.score-a.score),winner=ranking[0]||me;app.innerHTML=`<section class="panel center"><div style="font-size:52px">🏆</div><h2 style="font-size:38px">Das Rennen ist beendet!</h2><div class="avatarbox" style="display:inline-block">${avatar(winner)}</div><h2 style="color:#fde047">${esc(winner.name||"Niemand")} gewinnt mit ${winner.score||0} Punkten!</h2><div style="max-width:600px;margin:20px auto">${ranking.map((p,i)=>`<div class="rankrow"><b>#${i+1}</b>${avatar(p)}<b style="flex:1;text-align:left">${esc(p.name)}</b><b>${p.score}</b></div>`).join("")}</div>${btn("↻ Neues Spiel","reload")}</section>`}
+if(screen==="home"){appElement.innerHTML=`<div class="layout"><section class="panel"><h2>Dein Quiz-Tier</h2><p class="muted">Gestalte deine Figur und betrete die Arena.</p><div class="avatarbox">${avatar(me,true)}</div><label>Spielername</label><input id="name" class="field" placeholder="Dein Name" value="${esc(name)}"><label>Tiergesicht</label><div class="options">${ANIMALS.map(x=>pick("animal",x)).join("")}</div><label>Haare / Effekt</label><div class="options">${HAIR.map(x=>pick("hair",x)).join("")}</div><label>Kleidung</label><div class="options">${CLOTHES.map(x=>pick("clothes",x)).join("")}</div><label>Accessoire</label><div class="options">${ACCESSORIES.map(x=>pick("accessory",x)).join("")}</div></section><section class="stack"><div class="panel"><h2>👑 Neuen Raum eröffnen</h2><p class="muted">Du leitest das Spiel und startest 15 zufällige Fragen aus dem 50er-Pool.</p>${btn("Raum erstellen","create")}</div><div class="panel"><h2>↪ Mit Code beitreten</h2><input id="code" class="field center" maxlength="6" inputmode="numeric" placeholder="6-stelliger Raumcode" value="${esc(code)}"><div>${btn("Beitreten","join",code.length!==6)}</div></div></section></div>`}
+if(screen==="lobby"){appElement.innerHTML=`<section class="panel center"><div class="muted">Raumcode</div><div class="roomcode">${room.code}</div><button class="pill" data-action="copy">▢ Code kopieren</button><h2 style="margin-top:30px">Spieler in der Lobby (${players.length})</h2><div class="players">${players.map(p=>`<div class="player">${avatar(p)}<b>${esc(p.name)}</b></div>`).join("")}</div>${host?btn("▶ Spiel starten","start"): `<p style="color:#fde68a">Der Gastgeber startet gleich…</p>`}</section>`}
+if(screen==="game"){const q=room?.questions?.[round];if(!q){screen="result";render();return}const ranking=[...players].sort((a,b)=>b.score-a.score);appElement.innerHTML=`<div class="gamegrid"><section><div class="topline"><span class="pill">Frage ${round+1}/${room.questions.length} · ${q.d}</span><span class="timer ${time<=5?"low":""}">${time}s</span></div><div class="bar"><div style="width:${time/15*100}%"></div></div><div class="panel"><div class="question">${q.q}</div><div class="answers">${q.a.map((x,i)=>`<button class="answer ${locked&&i===q.c?"correct":locked&&selected===i?"wrong":""}" data-answer="${i}" ${locked?"disabled":""}><span class="letter">${String.fromCharCode(65+i)}</span>${x}</button>`).join("")}</div>${locked?`<div class="feedback"><div>${avatar(me)}<b>${selected===q.c?"Richtig! 🎉":"Richtig ist: "+q.a[q.c]}</b><div class="muted small">Warte auf die Mitspieler.</div></div>${host?`<div>${btn("Punkte berechnen","score",false,true)} ${btn("Weiter","next")}</div>`:""}</div>`:""}</div></section><aside class="panel"><h2>🏆 Rangliste</h2>${ranking.map((p,i)=>`<div class="rankrow"><b>${i+1}</b>${avatar(p)}<div><b>${esc(p.name)}</b><div class="score">${p.score} Punkte</div></div></div>`).join("")}</aside></div>`}
+if(screen==="result"){const ranking=[...players].sort((a,b)=>b.score-a.score),winner=ranking[0]||me;appElement.innerHTML=`<section class="panel center"><div style="font-size:52px">🏆</div><h2 style="font-size:38px">Das Rennen ist beendet!</h2><div class="avatarbox" style="display:inline-block">${avatar(winner)}</div><h2 style="color:#fde047">${esc(winner.name||"Niemand")} gewinnt mit ${winner.score||0} Punkten!</h2><div style="max-width:600px;margin:20px auto">${ranking.map((p,i)=>`<div class="rankrow"><b>#${i+1}</b>${avatar(p)}<b style="flex:1;text-align:left">${esc(p.name)}</b><b>${p.score}</b></div>`).join("")}</div>${btn("↻ Neues Spiel","reload")}</section>`}
 }
 
 function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -134,29 +164,32 @@ function listenToRoom(rc){
 }
 
 async function create(){
+  if (!auth.currentUser) {
+    await ensureAuth();
+  }
   name=$("name").value.trim();
-  me={...me,name:name||"Spieler 1"};
+  me={...me, id: auth.currentUser.uid, name:name||"Spieler 1"};
   host=true;
   const rc=roomCode();
   code=rc;
   const questions=shuffle(QUESTIONS).slice(0,15);
   room={code:rc,status:"lobby",questions,round:0};
-  
   const roomData={status:"lobby",code:rc,round:0,questions,hostId:me.id};
   await set(ref(database,"rooms/"+rc),roomData);
   await set(ref(database,"rooms/"+rc+"/players/"+me.id),me);
-  
   listenToRoom(rc);
   screen="lobby";
   render();
 }
 
 async function join(){
+  if (!auth.currentUser) {
+    await ensureAuth();
+  }
   name=$("name")?.value.trim()||name;
   code=$("code").value.trim();
-  me={...me,name:name||"Gast"};
+  me={...me, id: auth.currentUser.uid, name:name||"Gast"};
   host=false;
-  
   const snapshot=await get(child(ref(database),"rooms/"+code));
   if(snapshot.exists()){
     const data=snapshot.val();
@@ -214,7 +247,6 @@ async function scoreRound(){
     const rank=correct.findIndex(x=>x.id===p.id);
     return {...p,score:p.score+(rank>=0?(bonus[rank]||250)+Math.max(0,Math.round((15000-correct[rank].elapsed)/50)):0)};
   });
-  
   for(const p of updated){
     await update(ref(database,"rooms/"+code+"/players/"+p.id),{score:p.score});
   }
@@ -241,24 +273,23 @@ async function next(){
   render();
 }
 
-app.addEventListener("input",e=>{
+appElement.addEventListener("input",e=>{
   if(e.target.id==="name")name=e.target.value;
   if(e.target.id==="code"){
     code=e.target.value.replace(/\D/g,"").slice(0,6);
     e.target.value=code;
-    const b=app.querySelector('[data-action="join"]');
+    const b=appElement.querySelector('[data-action="join"]');
     if(b)b.disabled=code.length!==6;
   }
 });
 
-app.addEventListener("click",async e=>{
+appElement.addEventListener("click",async e=>{
   const p=e.target.closest("[data-pick]");
   if(p){me[p.dataset.pick]=p.dataset.value;render();return}
   const a=e.target.closest("[data-answer]");
   if(a){submit(Number(a.dataset.answer));return}
   const b=e.target.closest("[data-action]");
   if(!b)return;
-  
   switch(b.dataset.action){
     case"create":await create();break;
     case"join":await join();break;

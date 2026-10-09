@@ -1,305 +1,1021 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wissens-Race – Live Quiz Arena</title>
-<style>
-:root{color-scheme:dark;--cyan:#67e8f9;--violet:#8b5cf6;--ink:#090d24}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#253266,var(--ink) 52%);color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;padding:22px}button,input{font:inherit}button{cursor:pointer;border:0;color:inherit}.wrap{max-width:1120px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:28px}.eyebrow{color:var(--cyan);font-size:12px;font-weight:900;letter-spacing:.25em}h1{font-size:clamp(30px,5vw,48px);margin:5px 0;font-weight:950}h2{font-size:26px;margin:0 0 8px}.pill,.panel,.answer,.player{background:#ffffff12;border:1px solid #ffffff1c}.pill{padding:10px 16px;border-radius:30px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:22px}.panel{border-radius:28px;padding:26px;box-shadow:0 18px 50px #0002}.muted{color:#cbd5e1}.field{width:100%;background:#020617b8;border:1px solid #ffffff28;border-radius:14px;padding:13px 15px;color:white;margin:8px 0 18px;outline:none}.field:focus{border-color:var(--cyan)}label{font-weight:750;font-size:14px}.avatarbox{background:#0003;border-radius:22px;padding:18px;text-align:center;margin:18px 0}.avatar{font-size:54px;display:flex;flex-direction:column;align-items:center;line-height:1.1}.avatar .hair{font-size:24px;margin-bottom:-5px}.avatar .clothes{font-size:30px;margin-top:-7px}.options{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px}.choice{background:#ffffff14;border-radius:12px;padding:9px 12px;font-size:24px}.choice.active{background:var(--cyan);color:#0f172a;outline:2px solid white}.btn{background:linear-gradient(100deg,#22d3ee,#8b5cf6);color:#07111f;font-weight:900;padding:13px 20px;border-radius:15px;box-shadow:0 8px 25px #22d3ee22}.btn:disabled{opacity:.4;cursor:not-allowed}.btn.ghost{background:#ffffff1a;color:white;box-shadow:none}.stack{display:grid;gap:18px}.center{text-align:center}.roomcode{font-size:clamp(40px,8vw,70px);font-weight:950;letter-spacing:.15em;color:var(--cyan);margin:10px}.players{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:12px;margin:24px 0}.player{background:#0003;border-radius:17px;padding:14px;text-align:center}.gamegrid{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:20px}.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.timer{font-size:30px;font-weight:950;color:var(--cyan)}.timer.low{color:#f87171}.bar{height:10px;background:#ffffff18;border-radius:20px;overflow:hidden;margin-bottom:18px}.bar>div{height:100%;background:linear-gradient(90deg,#22d3ee,#8b5cf6);transition:width .3s}.question{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;min-height:120px;display:grid;place-items:center}.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.answer{border-radius:16px;padding:18px;text-align:left;font-weight:750;font-size:17px}.answer:hover{background:#ffffff25}.answer:disabled{cursor:default}.answer.correct{background:#10b981;color:#07111f}.answer.wrong{background:#ef4444}.answer .letter{opacity:.6;margin-right:10px}.feedback{background:#0003;border-radius:16px;padding:16px;margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.rankrow{display:flex;align-items:center;gap:12px;background:#0003;border-radius:13px;padding:11px;margin-top:10px}.rankrow .avatar{font-size:30px}.rankrow .clothes{font-size:20px}.rankrow .hair{font-size:14px}.score{color:var(--cyan);font-size:13px}footer{text-align:center;color:#94a3b8;font-size:12px;margin:28px 0 6px}.hidden{display:none!important}.small{font-size:13px}
-@media(max-width:760px){body{padding:14px}.layout,.gamegrid{grid-template-columns:1fr}.answers{grid-template-columns:1fr}.panel{padding:20px}header{align-items:flex-start;flex-direction:column}.topline{align-items:flex-start}.question{min-height:90px}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wissens-Race – Live Quiz Arena</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg1: #0b1023;
+      --bg2: #151d38;
+      --panel: rgba(15, 23, 42, 0.83);
+      --panel-border: rgba(103, 232, 249, 0.25);
+      --cyan: #67e8f9;
+      --violet: #8b5cf6;
+      --yellow: #facc15;
+      --green: #34d399;
+      --red: #fb7185;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --shadow: rgba(15, 23, 42, 0.6);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #253266 0%, var(--bg1) 52%);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 24px;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .eyebrow {
+      letter-spacing: 0.16em;
+      font-size: 12px;
+      color: var(--cyan);
+      opacity: 0.9;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 3vw, 3rem);
+    }
+
+    .pill {
+      background: rgba(139, 92, 246, 0.22);
+      border: 1px solid rgba(139, 92, 246, 0.6);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      opacity: 0.9;
+      text-align: center;
+    }
+
+    #app {
+      min-height: 560px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      box-shadow: 0 18px 40px var(--shadow);
+      padding: 26px;
+    }
+
+    .panel.center {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .muted {
+      color: var(--muted);
+      margin: 0 0 14px;
+    }
+
+    .avatarbox {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(103, 232, 249, 0.15), rgba(139, 92, 246, 0.15));
+      border: 1px solid rgba(103, 232, 249, 0.25);
+      display: grid;
+      place-items: center;
+      position: relative;
+      font-size: 52px;
+      user-select: none;
+    }
+
+    .avatar.large {
+      width: 160px;
+      height: 160px;
+      font-size: 76px;
+    }
+
+    .avatar .hair,
+    .avatar .clothes {
+      position: absolute;
+      font-size: 24px;
+    }
+
+    .avatar .hair { top: 10px; }
+    .avatar .clothes { bottom: 10px; }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .choice {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(103, 232, 249, 0.25);
+      border-radius: 16px;
+      color: var(--text);
+      padding: 14px 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.14s ease, border-color 0.14s ease;
+    }
+
+    .choice:hover,
+    .choice.active {
+      border-color: var(--cyan);
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 1px rgba(103,232,249,0.2);
+    }
+
+    .field {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(103, 232, 249, 0.25);
+      border-radius: 16px;
+      color: var(--text);
+      padding: 14px 16px;
+      font-size: 1rem;
+      margin: 12px 0 18px;
+    }
+
+    .btn,
+    button {
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      color: #06101f;
+      font-weight: 800;
+      padding: 13px 18px;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+
+    .btn:hover, button:hover { transform: translateY(-1px); }
+    .btn:disabled, button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .btn.ghost {
+      background: rgba(148, 163, 184, 0.12);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: var(--text);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .roomcode {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      color: var(--yellow);
+      margin: 16px 0 24px;
+    }
+
+    .player-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      list-style: none;
+      padding: 0;
+      margin: 18px 0 0;
+    }
+
+    .player-chip {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(103, 232, 249, 0.2);
+      border-radius: 999px;
+      padding: 10px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+
+    .gamegrid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .question-box {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(103, 232, 249, 0.22);
+      border-radius: 22px;
+      padding: 22px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(52, 211, 153, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: var(--green);
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+    }
+
+    .question {
+      font-size: clamp(1.3rem, 2.5vw, 2.3rem);
+      line-height: 1.4;
+      margin: 0 0 18px;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      border: 1px solid rgba(103, 232, 249, 0.18);
+      border-radius: 18px;
+      padding: 18px 14px;
+      min-height: 82px;
+      font-size: 1.02rem;
+      text-align: left;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .answer-btn.disabled {
+      opacity: 0.9;
+      cursor: default;
+    }
+
+    .answer-btn.correct {
+      border-color: rgba(52, 211, 153, 0.8);
+      background: rgba(52, 211, 153, 0.12);
+    }
+
+    .answer-btn.wrong {
+      border-color: rgba(251, 113, 133, 0.8);
+      background: rgba(251, 113, 133, 0.12);
+    }
+
+    .scorebox {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(103, 232, 249, 0.22);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .timer {
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      font-weight: 900;
+      color: var(--yellow);
+      margin: 8px 0 18px;
+    }
+
+    .rank-list {
+      list-style: none;
+      padding: 0;
+      margin: 18px 0 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .rank-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(103, 232, 249, 0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+
+    .winner {
+      font-size: 4rem;
+      margin: 12px 0;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 760px) {
+      body { padding: 14px; }
+      .layout, .gamegrid { grid-template-columns: 1fr; }
+      .answers, .choice-grid { grid-template-columns: 1fr; }
+      .panel { padding: 18px; }
+      header { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
 </head>
-<body><div class="wrap">
-<header><div><div class="eyebrow">LIVE QUIZ ARENA</div><h1>Wissens-Race <span style="color:#fde047">⚡</span></h1></div><div class="pill">👥 Gemeinsam spielen</div></header>
-<main id="app"></main>
-<footer>Firebase Multiplayer · Für mehrere Spieler denselben Raumcode verwenden. Online-Multiplayer über alle Geräte weltweit!</footer>
-</div>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="eyebrow">LIVE QUIZ ARENA</div>
+        <h1>Wissens-Race <span style="color:#fde047">⚡</span></h1>
+      </div>
+      <div class="pill">👥 Gemeinsam spielen</div>
+    </header>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, update, get, child } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    <main id="app"></main>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDpaOmIRzNmcGOSLOYPm_fPjWUkEwlmdNU",
-  authDomain: "spiel1-db4f4.firebaseapp.com",
-  databaseURL: "https://spiel1-db4f4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "spiel1-db4f4",
-  storageBucket: "spiel1-db4f4.firebasestorage.app",
-  messagingSenderId: "569058135123",
-  appId: "1:569058135123:web:497f60dad7952d46b8caa6",
-  measurementId: "G-MEDXSLHNW4"
-};
+    <footer>Firebase Multiplayer · Für mehrere Spieler denselben Raumcode verwenden. Online-Multiplayer über alle Geräte weltweit!</footer>
+  </div>
 
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-const auth = getAuth(app);
-let authReady = false;
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set, update, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    try {
-      const result = await signInAnonymously(auth);
-      console.log("Anonymous login ok", result.user.uid);
-    } catch (error) {
-      console.error("Anonymous login failed", error);
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpaOmIRzNmcGOSLOYPm_fPjWUkEwlmdNU",
+      authDomain: "spiel1-db4f4.firebaseapp.com",
+      databaseURL: "https://spiel1-db4f4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "spiel1-db4f4",
+      storageBucket: "spiel1-db4f4.firebasestorage.app",
+      messagingSenderId: "569058135123",
+      appId: "1:569058135123:web:497f60dad7952d46b8caa6",
+      measurementId: "G-MEDXSLHNW4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const auth = getAuth(app);
+
+    const QUESTIONS = [
+      { d: "Anfänger", q: "Wie heißt die Hauptstadt von Deutschland?", a: ["Berlin", "Bonn", "Hamburg", "München"], c: 0 },
+      { d: "Anfänger", q: "Wie viele Tage hat eine Woche?", a: ["5", "6", "7", "8"], c: 2 },
+      { d: "Anfänger", q: "Welcher Planet ist der Sonne am nächsten?", a: ["Venus", "Merkur", "Mars", "Erde"], c: 1 },
+      { d: "Anfänger", q: "Wie viele Kontinente gibt es üblicherweise?", a: ["5", "6", "7", "8"], c: 2 },
+      { d: "Anfänger", q: "Welches Tier gilt als größtes Landtier?", a: ["Giraffe", "Elefant", "Nashorn", "Nilpferd"], c: 1 },
+      { d: "Anfänger", q: "Welche Farbe entsteht aus Blau und Gelb?", a: ["Lila", "Orange", "Grün", "Rot"], c: 2 },
+      { d: "Anfänger", q: "Wie viele Minuten hat eine Stunde?", a: ["30", "45", "60", "100"], c: 2 },
+      { d: "Anfänger", q: "Welches Organ pumpt Blut durch den Körper?", a: ["Lunge", "Leber", "Herz", "Magen"], c: 2 },
+      { d: "Anfänger", q: "In welchem Land stehen die Pyramiden von Gizeh?", a: ["Mexiko", "Ägypten", "Indien", "Griechenland"], c: 1 },
+      { d: "Anfänger", q: "Wie viele Beine hat eine Spinne?", a: ["6", "8", "10", "12"], c: 1 },
+      { d: "Fortgeschritten", q: "Wer schrieb das Drama „Faust“?", a: ["Goethe", "Schiller", "Kafka", "Brecht"], c: 0 },
+      { d: "Fortgeschritten", q: "Wie lautet das chemische Symbol für Gold?", a: ["Ag", "Au", "Fe", "Go"], c: 1 },
+      { d: "Fortgeschritten", q: "Welcher Fluss fließt durch Wien?", a: ["Rhein", "Elbe", "Donau", "Seine"], c: 2 },
+      { d: "Fortgeschritten", q: "Wie viele Bundesländer hat Deutschland?", a: ["14", "15", "16", "17"], c: 2 },
+      { d: "Fortgeschritten", q: "In welchem Jahr fiel die Berliner Mauer?", a: ["1979", "1989", "1991", "1999"], c: 1 },
+      { d: "Fortgeschritten", q: "Welche Einheit misst elektrische Spannung?", a: ["Ampere", "Watt", "Volt", "Ohm"], c: 2 },
+      { d: "Fortgeschritten", q: "Welcher Knochen ist der längste im menschlichen Körper?", a: ["Oberarmknochen", "Schienbein", "Oberschenkelknochen", "Wirbelsäule"], c: 2 },
+      { d: "Fortgeschritten", q: "Was ist die Quadratwurzel aus 144?", a: ["10", "11", "12", "14"], c: 2 },
+      { d: "Fortgeschritten", q: "Wer malte die Mona Lisa?", a: ["Michelangelo", "Leonardo da Vinci", "Picasso", "Rembrandt"], c: 1 },
+      { d: "Fortgeschritten", q: "Welche Sprache wird in Brasilien hauptsächlich gesprochen?", a: ["Spanisch", "Portugiesisch", "Französisch", "Englisch"], c: 1 },
+      { d: "Profi", q: "Welches Element hat die Ordnungszahl 6?", a: ["Sauerstoff", "Kohlenstoff", "Stickstoff", "Helium"], c: 1 },
+      { d: "Profi", q: "Wie heißt die Hauptstadt von Australien?", a: ["Sydney", "Melbourne", "Canberra", "Perth"], c: 2 },
+      { d: "Profi", q: "Wer formulierte die drei klassischen Bewegungsgesetze?", a: ["Einstein", "Galilei", "Newton", "Kepler"], c: 2 },
+      { d: "Profi", q: "Welcher Frieden beendete 1648 den Dreißigjährigen Krieg?", a: ["Westfälischer Frieden", "Wiener Kongress", "Versailler Vertrag", "Augsburger Frieden"], c: 0 },
+      { d: "Profi", q: "Wie viele Chromosomen hat eine menschliche Körperzelle normalerweise?", a: ["23", "44", "46", "48"], c: 2 },
+      { d: "Profi", q: "Welche Stadt liegt an Bosporus und zwei Kontinenten?", a: ["Athen", "Istanbul", "Kairo", "Rom"], c: 1 },
+      { d: "Profi", q: "Was misst die Richterskala klassisch?", a: ["Windstärke", "Luftdruck", "Erdbebenstärke", "Lautstärke"], c: 2 },
+      { d: "Profi", q: "Welches Land besitzt die längste Küstenlinie?", a: ["Australien", "Russland", "Kanada", "Indonesien"], c: 2 },
+      { d: "Profi", q: "Wie heißt die kleinste Einheit digitaler Information?", a: ["Byte", "Bit", "Hertz", "Pixel"], c: 1 },
+      { d: "Profi", q: "Wer komponierte die 9. Sinfonie mit der „Ode an die Freude“?", a: ["Mozart", "Bach", "Beethoven", "Wagner"], c: 2 },
+      { d: "Profi", q: "Welche Blutgruppe gilt bei roten Blutkörperchen als Universalspender?", a: ["AB positiv", "0 negativ", "A positiv", "B negativ"], c: 1 },
+      { d: "Profi", q: "Welcher Kontinent hat die meisten Staaten?", a: ["Europa", "Afrika", "Asien", "Südamerika"], c: 1 },
+      { d: "Profi", q: "Wie heißt der Prozess, bei dem Pflanzen Lichtenergie nutzen?", a: ["Osmose", "Gärung", "Fotosynthese", "Transpiration"], c: 2 },
+      { d: "Profi", q: "Welcher Staat ist vollständig von Südafrika umgeben?", a: ["Lesotho", "Eswatini", "Botswana", "Namibia"], c: 0 },
+      { d: "Profi", q: "Welche Einheit entspricht einem Joule pro Sekunde?", a: ["Volt", "Watt", "Pascal", "Newton"], c: 1 },
+      { d: "Profi", q: "Wie nennt man ein Wort, das vorwärts und rückwärts gleich lautet?", a: ["Akronym", "Synonym", "Palindrom", "Homonym"], c: 2 }
+    ];
+
+    const ANIMALS = ["🦊", "🐼", "🐯", "🐸", "🐨", "🦁", "🐰", "🐵"];
+    const HAIR = ["✨", "🟤", "🟡", "🟣", "🔵"];
+    const CLOTHES = ["👕", "🧥", "🥋", "👗", "🦺"];
+    const ACCESSORIES = ["🚲", "🛹", "☁️", "Ohne"];
+
+    const uid = () => Math.random().toString(36).slice(2, 10);
+    const roomCode = () => String(Math.floor(100000 + Math.random() * 900000));
+    const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
+    const $ = (id) => document.getElementById(id);
+
+    let screen = "home";
+    let name = "";
+    let code = "";
+    let host = false;
+    let room = null;
+    let roomCodeValue = "";
+    let players = [];
+    let answers = {};
+    let currentRound = 0;
+    let selectedAnswer = null;
+    let locked = false;
+    let timeLeft = 15;
+    let timerId = null;
+    let roomListener = null;
+    let playersListener = null;
+    let answersListener = null;
+    let roomRoundScored = false;
+
+    let me = {
+      id: uid(),
+      name: "",
+      animal: "🦊",
+      hair: "✨",
+      clothes: "👕",
+      accessory: "Ohne",
+      score: 0
+    };
+
+    const appElement = $("app");
+
+    function avatar(p, large = false) {
+      return `
+        <div class="avatar ${large ? "large" : ""}">
+          <span class="hair">${p.hair || "✨"}</span>
+          <span>${p.animal || "🦊"}</span>
+          <span class="clothes">${p.clothes || "👕"}</span>
+          ${p.accessory && p.accessory !== "Ohne" ? `<span style="position:absolute;right:10px;bottom:10px;font-size:24px">${p.accessory}</span>` : ""}
+        </div>
+      `;
     }
-  } else {
-    authReady = true;
-    console.log("Firebase user ready:", user.uid);
-    if (me.id !== user.uid) {
-      me = { ...me, id: user.uid };
+
+    function btn(text, action, disabled = false, ghost = false) {
+      return `<button class="btn ${ghost ? "ghost" : ""}" data-action="${action}" ${disabled ? "disabled" : ""}>${text}</button>`;
     }
-  }
-});
 
-async function ensureAuth() {
-  if (!auth.currentUser) {
-    const result = await signInAnonymously(auth);
-    me = { ...me, id: result.user.uid };
-    return result.user;
-  }
-  me = { ...me, id: auth.currentUser.uid };
-  return auth.currentUser;
-}
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[c]));
+    }
 
-const QUESTIONS = [
-  {d:"Anfänger",q:"Wie heißt die Hauptstadt von Deutschland?",a:["Berlin","Bonn","Hamburg","München"],c:0},
-  {d:"Anfänger",q:"Wie viele Tage hat eine Woche?",a:["5","6","7","8"],c:2},
-  {d:"Anfänger",q:"Welcher Planet ist der Sonne am nächsten?",a:["Venus","Merkur","Mars","Erde"],c:1},
-  {d:"Anfänger",q:"Wie viele Kontinente gibt es üblicherweise?",a:["5","6","7","8"],c:2},
-  {d:"Anfänger",q:"Welches Tier gilt als größtes Landtier?",a:["Giraffe","Elefant","Nashorn","Nilpferd"],c:1},
-  {d:"Anfänger",q:"Welche Farbe entsteht aus Blau und Gelb?",a:["Lila","Orange","Grün","Rot"],c:2},
-  {d:"Anfänger",q:"Wie viele Minuten hat eine Stunde?",a:["30","45","60","100"],c:2},
-  {d:"Anfänger",q:"Welches Organ pumpt Blut durch den Körper?",a:["Lunge","Leber","Herz","Magen"],c:2},
-  {d:"Anfänger",q:"In welchem Land stehen die Pyramiden von Gizeh?",a:["Mexiko","Ägypten","Indien","Griechenland"],c:1},
-  {d:"Anfänger",q:"Wie viele Beine hat eine Spinne?",a:["6","8","10","12"],c:1},
-  {d:"Anfänger",q:"Welcher Ozean ist der größte?",a:["Atlantik","Indischer Ozean","Pazifik","Arktischer Ozean"],c:2},
-  {d:"Anfänger",q:"Was gefriert bei 0 Grad Celsius?",a:["Öl","Wasser","Salz","Sand"],c:1},
-  {d:"Anfänger",q:"Wie heißt unser natürlicher Satellit?",a:["Sonne","Mond","Mars","Venus"],c:1},
-  {d:"Anfänger",q:"Welche Jahreszeit folgt auf den Frühling?",a:["Herbst","Winter","Sommer","Regenzeit"],c:2},
-  {d:"Anfänger",q:"Welches Gas brauchen Menschen zum Atmen?",a:["Helium","Sauerstoff","Wasserstoff","Neon"],c:1},
-  {d:"Anfänger",q:"Wie viele Stunden hat ein Tag?",a:["12","20","24","48"],c:2},
-  {d:"Anfänger",q:"Welches Instrument hat schwarze und weiße Tasten?",a:["Trompete","Geige","Klavier","Flöte"],c:2},
-  {d:"Fortgeschritten",q:"Wer schrieb das Drama „Faust“?",a:["Goethe","Schiller","Kafka","Brecht"],c:0},
-  {d:"Fortgeschritten",q:"Wie lautet das chemische Symbol für Gold?",a:["Ag","Au","Fe","Go"],c:1},
-  {d:"Fortgeschritten",q:"Welcher Fluss fließt durch Wien?",a:["Rhein","Elbe","Donau","Seine"],c:2},
-  {d:"Fortgeschritten",q:"Wie viele Bundesländer hat Deutschland?",a:["14","15","16","17"],c:2},
-  {d:"Fortgeschritten",q:"In welchem Jahr fiel die Berliner Mauer?",a:["1979","1989","1991","1999"],c:1},
-  {d:"Fortgeschritten",q:"Welche Einheit misst elektrische Spannung?",a:["Ampere","Watt","Volt","Ohm"],c:2},
-  {d:"Fortgeschritten",q:"Welcher Knochen ist der längste im menschlichen Körper?",a:["Oberarmknochen","Schienbein","Oberschenkelknochen","Wirbelsäule"],c:2},
-  {d:"Fortgeschritten",q:"Was ist die Quadratwurzel aus 144?",a:["10","11","12","14"],c:2},
-  {d:"Fortgeschritten",q:"Wer malte die Mona Lisa?",a:["Michelangelo","Leonardo da Vinci","Picasso","Rembrandt"],c:1},
-  {d:"Fortgeschritten",q:"Welche Sprache wird in Brasilien hauptsächlich gesprochen?",a:["Spanisch","Portugiesisch","Französisch","Englisch"],c:1},
-  {d:"Fortgeschritten",q:"Wie heißt die Hauptstadt von Kanada?",a:["Toronto","Vancouver","Ottawa","Montreal"],c:2},
-  {d:"Fortgeschritten",q:"Welcher Planet ist für seine auffälligen Ringe bekannt?",a:["Mars","Jupiter","Saturn","Neptun"],c:2},
-  {d:"Fortgeschritten",q:"Was bedeutet H₂O?",a:["Sauerstoff","Wasser","Salz","Kohlendioxid"],c:1},
-  {d:"Fortgeschritten",q:"Welche Zahl ist eine Primzahl?",a:["21","27","29","39"],c:2},
-  {d:"Fortgeschritten",q:"Auf welchem Kontinent liegt Argentinien?",a:["Afrika","Asien","Südamerika","Europa"],c:2},
-  {d:"Fortgeschritten",q:"Wie heißt die Lehre von den Himmelskörpern?",a:["Geologie","Astronomie","Biologie","Meteorologie"],c:1},
-  {d:"Fortgeschritten",q:"Welches Metall ist bei Raumtemperatur flüssig?",a:["Eisen","Aluminium","Quecksilber","Kupfer"],c:2},
-  {d:"Profi",q:"Welches Element hat die Ordnungszahl 6?",a:["Sauerstoff","Kohlenstoff","Stickstoff","Helium"],c:1},
-  {d:"Profi",q:"Wie heißt die Hauptstadt von Australien?",a:["Sydney","Melbourne","Canberra","Perth"],c:2},
-  {d:"Profi",q:"Wer formulierte die drei klassischen Bewegungsgesetze?",a:["Einstein","Galilei","Newton","Kepler"],c:2},
-  {d:"Profi",q:"Welcher Frieden beendete 1648 den Dreißigjährigen Krieg?",a:["Westfälischer Frieden","Wiener Kongress","Versailler Vertrag","Augsburger Frieden"],c:0},
-  {d:"Profi",q:"Wie viele Chromosomen hat eine menschliche Körperzelle normalerweise?",a:["23","44","46","48"],c:2},
-  {d:"Profi",q:"Welche Stadt liegt an Bosporus und zwei Kontinenten?",a:["Athen","Istanbul","Kairo","Rom"],c:1},
-  {d:"Profi",q:"Was misst die Richterskala klassisch?",a:["Windstärke","Luftdruck","Erdbebenstärke","Lautstärke"],c:2},
-  {d:"Profi",q:"Welches Land besitzt die längste Küstenlinie?",a:["Australien","Russland","Kanada","Indonesien"],c:2},
-  {d:"Profi",q:"Wie heißt die kleinste Einheit digitaler Information?",a:["Byte","Bit","Hertz","Pixel"],c:1},
-  {d:"Profi",q:"Wer komponierte die 9. Sinfonie mit der „Ode an die Freude“?",a:["Mozart","Bach","Beethoven","Wagner"],c:2},
-  {d:"Profi",q:"Welche Blutgruppe gilt bei roten Blutkörperchen als Universalspender?",a:["AB positiv","0 negativ","A positiv","B negativ"],c:1},
-  {d:"Profi",q:"Welcher Kontinent hat die meisten Staaten?",a:["Europa","Afrika","Asien","Südamerika"],c:1},
-  {d:"Profi",q:"Wie heißt der Prozess, bei dem Pflanzen Lichtenergie nutzen?",a:["Osmose","Gärung","Fotosynthese","Transpiration"],c:2},
-  {d:"Profi",q:"Welcher Staat ist vollständig von Südafrika umgeben?",a:["Lesotho","Eswatini","Botswana","Namibia"],c:0},
-  {d:"Profi",q:"Welche Einheit entspricht einem Joule pro Sekunde?",a:["Volt","Watt","Pascal","Newton"],c:1},
-  {d:"Profi",q:"Wie nennt man ein Wort, das vorwärts und rückwärts gleich lautet?",a:["Akronym","Synonym","Palindrom","Homonym"],c:2}
-];
+    function pick(key, x) {
+      return `<button class="choice ${me[key] === x ? "active" : ""}" data-pick="${key}" data-value="${x}">${x}</button>`;
+    }
 
-const ANIMALS=["🦊","🐼","🐯","🐸","🐨","🦁","🐰","🐵"], HAIR=["✨","🟤","🟡","🟣","🔵"], CLOTHES=["👕","🧥","🥋","👗","🦺"], ACCESSORIES=["🚲","🛹","☁️","Ohne"];
-const uid=()=>Math.random().toString(36).slice(2,10), roomCode=()=>String(Math.floor(100000+Math.random()*900000)), shuffle=a=>[...a].sort(()=>Math.random()-.5);
-const $=id=>document.getElementById(id);
+    function getCurrentQuestion() {
+      if (!room || !Array.isArray(room.questions)) return null;
+      return room.questions[currentRound] || null;
+    }
 
-let screen="home", name="", code="", host=false, room=null, players=[], round=0, selected=null, locked=false, time=15, answers={}, timer=null, startAt=0;
-let me={id:uid(),name:"",animal:"🦊",hair:"✨",clothes:"👕",accessory:"Ohne",score:0};
-let roomRef=null, playersRef=null, roomListener=null, playersListener=null;
+    function startRoundClock() {
+      clearInterval(timerId);
+      timerId = setInterval(() => {
+        if (screen !== "game" || !room || room.status !== "game") {
+          clearInterval(timerId);
+          return;
+        }
 
-const appElement=$("app");
+        const startedAt = Number(room.roundStartedAt || Date.now());
+        const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+        timeLeft = Math.max(0, 15 - elapsedSeconds);
 
-function avatar(p,large=false){return `<div class="avatar"><span class="hair">${p.hair||"✨"}</span><span>${p.animal||"🦊"}</span><span class="clothes">${p.clothes||"👕"}</span>${p.accessory&&p.accessory!=="Ohne"?`<span>${p.accessory}</span>`:""}</div>`}
-function btn(text,action,disabled=false,ghost=false){return `<button class="btn ${ghost?"ghost":""}" data-action="${action}" ${disabled?"disabled":""}>${text}</button>`}
+        if (timeLeft <= 0) {
+          clearInterval(timerId);
+          if (!locked) {
+            submitAnswer(-1, true).catch((err) => console.error(err));
+          }
+        }
 
-function render(){
-if(screen==="home"){appElement.innerHTML=`<div class="layout"><section class="panel"><h2>Dein Quiz-Tier</h2><p class="muted">Gestalte deine Figur und betrete die Arena.</p><div class="avatarbox">${avatar(me,true)}</div><label>Spielername</label><input id="name" class="field" placeholder="Dein Name" value="${esc(name)}"><label>Tiergesicht</label><div class="options">${ANIMALS.map(x=>pick("animal",x)).join("")}</div><label>Haare / Effekt</label><div class="options">${HAIR.map(x=>pick("hair",x)).join("")}</div><label>Kleidung</label><div class="options">${CLOTHES.map(x=>pick("clothes",x)).join("")}</div><label>Accessoire</label><div class="options">${ACCESSORIES.map(x=>pick("accessory",x)).join("")}</div></section><section class="stack"><div class="panel"><h2>👑 Neuen Raum eröffnen</h2><p class="muted">Du leitest das Spiel und startest 15 zufällige Fragen aus dem 50er-Pool.</p>${btn("Raum erstellen","create")}</div><div class="panel"><h2>↪ Mit Code beitreten</h2><input id="code" class="field center" maxlength="6" inputmode="numeric" placeholder="6-stelliger Raumcode" value="${esc(code)}"><div>${btn("Beitreten","join",code.length!==6)}</div></div></section></div>`}
-if(screen==="lobby"){appElement.innerHTML=`<section class="panel center"><div class="muted">Raumcode</div><div class="roomcode">${room.code}</div><button class="pill" data-action="copy">▢ Code kopieren</button><h2 style="margin-top:30px">Spieler in der Lobby (${players.length})</h2><div class="players">${players.map(p=>`<div class="player">${avatar(p)}<b>${esc(p.name)}</b></div>`).join("")}</div>${host?btn("▶ Spiel starten","start"): `<p style="color:#fde68a">Der Gastgeber startet gleich…</p>`}</section>`}
-if(screen==="game"){const q=room?.questions?.[round];if(!q){screen="result";render();return}const ranking=[...players].sort((a,b)=>b.score-a.score);appElement.innerHTML=`<div class="gamegrid"><section><div class="topline"><span class="pill">Frage ${round+1}/${room.questions.length} · ${q.d}</span><span class="timer ${time<=5?"low":""}">${time}s</span></div><div class="bar"><div style="width:${time/15*100}%"></div></div><div class="panel"><div class="question">${q.q}</div><div class="answers">${q.a.map((x,i)=>`<button class="answer ${locked&&i===q.c?"correct":locked&&selected===i?"wrong":""}" data-answer="${i}" ${locked?"disabled":""}><span class="letter">${String.fromCharCode(65+i)}</span>${x}</button>`).join("")}</div>${locked?`<div class="feedback"><div>${avatar(me)}<b>${selected===q.c?"Richtig! 🎉":"Richtig ist: "+q.a[q.c]}</b><div class="muted small">Warte auf die Mitspieler.</div></div>${host?`<div>${btn("Punkte berechnen","score",false,true)} ${btn("Weiter","next")}</div>`:""}</div>`:""}</div></section><aside class="panel"><h2>🏆 Rangliste</h2>${ranking.map((p,i)=>`<div class="rankrow"><b>${i+1}</b>${avatar(p)}<div><b>${esc(p.name)}</b><div class="score">${p.score} Punkte</div></div></div>`).join("")}</aside></div>`}
-if(screen==="result"){const ranking=[...players].sort((a,b)=>b.score-a.score),winner=ranking[0]||me;appElement.innerHTML=`<section class="panel center"><div style="font-size:52px">🏆</div><h2 style="font-size:38px">Das Rennen ist beendet!</h2><div class="avatarbox" style="display:inline-block">${avatar(winner)}</div><h2 style="color:#fde047">${esc(winner.name||"Niemand")} gewinnt mit ${winner.score||0} Punkten!</h2><div style="max-width:600px;margin:20px auto">${ranking.map((p,i)=>`<div class="rankrow"><b>#${i+1}</b>${avatar(p)}<b style="flex:1;text-align:left">${esc(p.name)}</b><b>${p.score}</b></div>`).join("")}</div>${btn("↻ Neues Spiel","reload")}</section>`}
-}
+        render();
+      }, 200);
+    }
 
-function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function pick(key,x){return `<button class="choice ${me[key]===x?"active":""}" data-pick="${key}" data-value="${x}">${x}</button>`}
+    function render() {
+      if (screen === "home") {
+        appElement.innerHTML = `
+          <div class="layout">
+            <section class="panel">
+              <h2>Dein Quiz-Tier</h2>
+              <p class="muted">Gestalte deine Figur und betrete die Arena.</p>
+              <div class="avatarbox">${avatar(me, true)}</div>
 
-function listenToRoom(rc){
-  roomRef=ref(database,"rooms/"+rc);
-  if(roomListener)roomListener();
-  roomListener=onValue(roomRef,(snapshot)=>{
-    if(snapshot.exists()){
-      const data=snapshot.val();
-      room={...data,code:rc};
-      if(data.status==="game"&&screen==="lobby")screen="game";
-      if(data.status==="result"&&screen==="game"){screen="result";clearInterval(timer)}
+              <div class="choice-grid">
+                ${ANIMALS.map((x) => pick("animal", x)).join("")}
+              </div>
+              <div class="choice-grid" style="margin-top:12px;">
+                ${HAIR.map((x) => pick("hair", x)).join("")}
+              </div>
+              <div class="choice-grid" style="margin-top:12px;">
+                ${CLOTHES.map((x) => pick("clothes", x)).join("")}
+              </div>
+              <div class="choice-grid" style="margin-top:12px;">
+                ${ACCESSORIES.map((x) => pick("accessory", x)).join("")}
+              </div>
+            </section>
+
+            <aside class="panel">
+              <h2>Spiel starten</h2>
+              <label class="muted" for="name">Dein Name</label>
+              <input id="name" class="field" value="${esc(name)}" maxlength="20" placeholder="z. B. Max" />
+
+              <label class="muted" for="code">Raumcode</label>
+              <input id="code" class="field" value="${esc(code)}" maxlength="6" inputmode="numeric" placeholder="123456" />
+
+              <div class="toolbar">
+                ${btn("Raum erstellen", "create")}
+                ${btn("Beitreten", "join", code.length !== 6, true)}
+              </div>
+            </aside>
+          </div>
+        `;
+        return;
+      }
+
+      if (screen === "lobby") {
+        const r = room || { code: roomCodeValue, status: "lobby" };
+        const ranking = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
+
+        appElement.innerHTML = `
+          <section class="panel center">
+            <div class="muted">Raumcode</div>
+            <div class="roomcode">${esc(r.code || roomCodeValue)}</div>
+            <div class="toolbar" style="justify-content:center;">
+              ${btn("Teilnehmer laden", "reload", false, true)}
+              ${btn("Code kopieren", "copy", false, true)}
+              ${host ? btn("Spiel starten", "start") : ""}
+            </div>
+
+            <ul class="player-list" style="justify-content:center;">
+              ${ranking.map((p) => `
+                <li class="player-chip">
+                  ${avatar({ ...p, animal: p.animal || "🦊", hair: p.hair || "✨", clothes: p.clothes || "👕" })}
+                  <span>${esc(p.name || "Spieler")}</span>
+                </li>
+              `).join("") || "<li class=" + "player-chip" + ">Noch niemand im Raum</li>"}
+            </ul>
+          </section>
+        `;
+        return;
+      }
+
+      if (screen === "game") {
+        const q = getCurrentQuestion();
+        const ranking = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
+
+        if (!q) {
+          screen = "result";
+          render();
+          return;
+        }
+
+        const myAnswer = answers[me.id];
+        const answerEntries = Object.values(answers || {});
+        const answerState = myAnswer ? myAnswer.index : null;
+
+        appElement.innerHTML = `
+          <div class="gamegrid">
+            <section class="panel">
+              <div class="badge">Frage ${currentRound + 1} • ${esc(q.d || "Quiz")}</div>
+              <div class="question">${esc(q.q)}</div>
+
+              <div class="answers">
+                ${q.a.map((option, idx) => {
+                  const isSelected = Number(answerState) === idx;
+                  const isCorrect = Number(q.c) === idx;
+                  const winner = myAnswer && !locked ? false : false;
+                  let classes = "answer-btn";
+                  if (locked) {
+                    if (isCorrect) classes += " correct";
+                    if (isSelected && !isCorrect) classes += " wrong";
+                  } else if (isSelected) {
+                    classes += " disabled";
+                  }
+
+                  return `
+                    <button
+                      class="${classes}"
+                      data-answer="${idx}"
+                      ${locked || (answerState !== null && answerState !== undefined) ? "disabled" : ""}
+                    >${esc(option)}</button>
+                  `;
+                }).join("")}
+              </div>
+            </section>
+
+            <aside class="scorebox">
+              <div class="muted">Zeit</div>
+              <div class="timer">${timeLeft}s</div>
+
+              <div class="muted">Aktive Spieler</div>
+              <ul class="rank-list">
+                ${ranking.slice(0, 6).map((p, idx) => `
+                  <li class="rank-item">
+                    <span>#${idx + 1} ${esc(p.name || "Spieler")}</span>
+                    <strong>${Number(p.score || 0)}</strong>
+                  </li>
+                `).join("")}
+              </ul>
+
+              <div style="margin-top: 18px;">
+                ${host ? btn("Runde bewerten", "score", false, true) : ""}
+              </div>
+            </aside>
+          </div>
+        `;
+        return;
+      }
+
+      if (screen === "result") {
+        const ranking = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
+        const winner = ranking[0] || me;
+
+        appElement.innerHTML = `
+          <section class="panel center">
+            <div class="winner">🏆</div>
+            <h2>Ergebnis</h2>
+            <div class="muted">Gewinner: <strong>${esc(winner.name || "Spieler")}</strong></div>
+
+            <ul class="rank-list" style="max-width: 420px; margin: 20px auto 0;">
+              ${ranking.map((p, idx) => `
+                <li class="rank-item">
+                  <span>#${idx + 1} ${esc(p.name || "Spieler")}</span>
+                  <strong>${Number(p.score || 0)} Pkt.</strong>
+                </li>
+              `).join("")}
+            </ul>
+
+            <div class="toolbar" style="justify-content:center; margin-top: 22px;">
+              ${btn("Neustart", "reload", false, false)}
+            </div>
+          </section>
+        `;
+      }
+    }
+
+    async function ensureAuth() {
+      if (!auth.currentUser) {
+        try {
+          const result = await signInAnonymously(auth);
+          me = { ...me, id: result.user.uid };
+          return result.user;
+        } catch (error) {
+          console.error("Anonymous login failed", error);
+          throw error;
+        }
+      }
+
+      me = { ...me, id: auth.currentUser.uid };
+      return auth.currentUser;
+    }
+
+    function listenToRoom(rc) {
+      if (roomListener) roomListener();
+      if (playersListener) playersListener();
+      if (answersListener) answersListener();
+
+      const roomRef = ref(database, "rooms/" + rc);
+      roomListener = onValue(roomRef, (snapshot) => {
+        if (!snapshot.exists()) {
+          room = null;
+          players = [];
+          answers = {};
+          render();
+          return;
+        }
+
+        room = snapshot.val();
+        room.code = rc;
+
+        if (room.status === "game" && screen === "lobby") {
+          screen = "game";
+        }
+
+        if (room.status === "result" && screen !== "result") {
+          screen = "result";
+        }
+
+        if (screen === "game" && room.round !== undefined && room.round !== null) {
+          currentRound = Number(room.round || 0);
+        }
+
+        if (screen === "game" && room.roundStartedAt) {
+          startRoundClock();
+        }
+
+        render();
+      });
+
+      const playersRef = ref(database, "rooms/" + rc + "/players");
+      playersListener = onValue(playersRef, (snapshot) => {
+        if (snapshot.exists()) {
+          players = Object.values(snapshot.val());
+        } else {
+          players = [];
+        }
+        render();
+      });
+
+      const answersRef = ref(database, "rooms/" + rc + "/answers");
+      answersListener = onValue(answersRef, (snapshot) => {
+        answers = snapshot.exists() ? snapshot.val() : {};
+        render();
+      });
+    }
+
+    async function createRoom() {
+      try {
+        await ensureAuth();
+
+        const nameInput = $("name");
+        name = (nameInput ? nameInput.value.trim() : "") || "Spieler 1";
+        me = { ...me, id: auth.currentUser.uid, name, score: 0 };
+        host = true;
+
+        const rc = roomCode();
+        roomCodeValue = rc;
+        code = rc;
+        const questions = shuffle(QUESTIONS).slice(0, 12);
+
+        await set(ref(database, "rooms/" + rc), {
+          code: rc,
+          status: "lobby",
+          round: 0,
+          questions,
+          hostId: me.id,
+          createdAt: Date.now()
+        });
+
+        await set(ref(database, "rooms/" + rc + "/players/" + me.id), me);
+
+        listenToRoom(rc);
+        screen = "lobby";
+        render();
+      } catch (error) {
+        console.error("createRoom failed", error);
+        alert("Raum konnte nicht erstellt werden: " + error.message);
+      }
+    }
+
+    async function joinRoom() {
+      try {
+        await ensureAuth();
+
+        const nameInput = $("name");
+        name = (nameInput ? nameInput.value.trim() : "") || "Gast";
+        const enteredCode = $("code")?.value.trim() || "";
+        roomCodeValue = String(enteredCode).replace(/\D/g, "").slice(0, 6);
+        code = roomCodeValue;
+
+        if (roomCodeValue.length !== 6) {
+          alert("Bitte einen gültigen 6-stelligen Raumcode eingeben.");
+          return;
+        }
+
+        me = { ...me, id: auth.currentUser.uid, name, score: 0 };
+        host = false;
+
+        const snapshot = await get(ref(database, "rooms/" + roomCodeValue));
+        if (!snapshot.exists()) {
+          alert("Raum nicht gefunden!");
+          return;
+        }
+
+        await set(ref(database, "rooms/" + roomCodeValue + "/players/" + me.id), me);
+        listenToRoom(roomCodeValue);
+        screen = "lobby";
+        render();
+      } catch (error) {
+        console.error("joinRoom failed", error);
+        alert("Beitritt fehlgeschlagen: " + error.message);
+      }
+    }
+
+    async function startGame() {
+      if (!host || !roomCodeValue) return;
+
+      const resetPlayers = {};
+      players.forEach((p) => {
+        resetPlayers[p.id] = { ...p, score: 0 };
+      });
+
+      await set(ref(database, "rooms/" + roomCodeValue + "/players"), resetPlayers);
+      await set(ref(database, "rooms/" + roomCodeValue + "/answers"), {});
+      await update(ref(database, "rooms/" + roomCodeValue), {
+        status: "game",
+        round: 0,
+        roundStartedAt: Date.now(),
+        startedAt: Date.now()
+      });
+
+      selectedAnswer = null;
+      locked = false;
+      roomRoundScored = false;
+      currentRound = 0;
+      timeLeft = 15;
+      startRoundClock();
+      screen = "game";
       render();
     }
-  });
-  playersRef=ref(database,"rooms/"+rc+"/players");
-  if(playersListener)playersListener();
-  playersListener=onValue(playersRef,(snapshot)=>{
-    if(snapshot.exists()){
-      const obj=snapshot.val();
-      players=Object.keys(obj).map(k=>obj[k]);
+
+    async function submitAnswer(index, timedOut = false) {
+      if (!roomCodeValue || screen !== "game" || locked || !room) return;
+
+      const q = getCurrentQuestion();
+      if (!q) return;
+
+      locked = true;
+      selectedAnswer = index;
+
+      const payload = {
+        id: me.id,
+        name: me.name || "Spieler",
+        index,
+        elapsed: Math.min(15000, Date.now() - (Number(room.roundStartedAt) || Date.now())),
+        correct: Number(index) === Number(q.c),
+        timedOut,
+        answeredAt: Date.now()
+      };
+
+      await set(ref(database, "rooms/" + roomCodeValue + "/answers/" + me.id), payload);
       render();
-    }else{
-      players=[];
+
+      if (host) {
+        await maybeFinalizeRound();
+      }
     }
-  });
-}
 
-async function create(){
-  if (!auth.currentUser) {
-    await ensureAuth();
-  }
-  name=$("name").value.trim();
-  me={...me, id: auth.currentUser.uid, name:name||"Spieler 1"};
-  host=true;
-  const rc=roomCode();
-  code=rc;
-  const questions=shuffle(QUESTIONS).slice(0,15);
-  room={code:rc,status:"lobby",questions,round:0};
-  const roomData={status:"lobby",code:rc,round:0,questions,hostId:me.id};
-  await set(ref(database,"rooms/"+rc),roomData);
-  await set(ref(database,"rooms/"+rc+"/players/"+me.id),me);
-  listenToRoom(rc);
-  screen="lobby";
-  render();
-}
+    async function scoreRound() {
+      if (!host || !roomCodeValue) return;
+      if (!players.length) return;
 
-async function join(){
-  if (!auth.currentUser) {
-    await ensureAuth();
-  }
-  name=$("name")?.value.trim()||name;
-  code=$("code").value.trim();
-  me={...me, id: auth.currentUser.uid, name:name||"Gast"};
-  host=false;
-  const snapshot=await get(child(ref(database),"rooms/"+code));
-  if(snapshot.exists()){
-    const data=snapshot.val();
-    room={...data,code};
-    await set(ref(database,"rooms/"+code+"/players/"+me.id),me);
-    listenToRoom(code);
-    screen="lobby";
+      const answerList = Object.values(answers || {});
+      const correctList = answerList.filter((a) => !!a.correct).sort((a, b) => a.elapsed - b.elapsed);
+      const bonus = [1000, 700, 500];
+
+      const updatedPlayers = players.map((p) => {
+        const entry = answerList.find((a) => a.id === p.id);
+        const rank = correctList.findIndex((a) => a.id === p.id);
+        const gain = entry
+          ? rank >= 0
+            ? (bonus[rank] || 250) + Math.max(0, Math.round((15000 - correctList[rank].elapsed) / 50))
+            : 0
+          : 0;
+
+        return { ...p, score: (Number(p.score) || 0) + gain };
+      });
+
+      const playersMap = {};
+      updatedPlayers.forEach((p) => { playersMap[p.id] = p; });
+      await set(ref(database, "rooms/" + roomCodeValue + "/players"), playersMap);
+      players = updatedPlayers;
+      roomRoundScored = true;
+      render();
+    }
+
+    async function maybeFinalizeRound() {
+      if (!host || !roomCodeValue || roomRoundScored) return;
+      const currentAnswers = Object.values(answers || {});
+      const allAnswered = players.length > 0 && players.every((p) => !!currentAnswers.find((a) => a.id === p.id));
+
+      if (timeLeft <= 0 || allAnswered) {
+        await scoreRound();
+        setTimeout(async () => {
+          await nextRound();
+        }, 1200);
+      }
+    }
+
+    async function nextRound() {
+      if (!host || !roomCodeValue) return;
+
+      const nextIndex = Number(currentRound) + 1;
+      const done = nextIndex >= (room?.questions?.length || 1);
+
+      if (done) {
+        await update(ref(database, "rooms/" + roomCodeValue), { status: "result" });
+        screen = "result";
+        clearInterval(timerId);
+        render();
+        return;
+      }
+
+      await set(ref(database, "rooms/" + roomCodeValue + "/answers"), {});
+      await update(ref(database, "rooms/" + roomCodeValue), {
+        round: nextIndex,
+        roundStartedAt: Date.now(),
+        status: "game"
+      });
+
+      selectedAnswer = null;
+      locked = false;
+      roomRoundScored = false;
+      currentRound = nextIndex;
+      timeLeft = 15;
+      screen = "game";
+      startRoundClock();
+      render();
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        me = { ...me, id: user.uid };
+      }
+    });
+
+    appElement.addEventListener("input", (e) => {
+      if (e.target.id === "name") {
+        name = e.target.value;
+      }
+      if (e.target.id === "code") {
+        code = e.target.value.replace(/\D/g, "").slice(0, 6);
+        e.target.value = code;
+        const joinButton = appElement.querySelector('[data-action="join"]');
+        if (joinButton) joinButton.disabled = code.length !== 6;
+      }
+    });
+
+    appElement.addEventListener("click", async (e) => {
+      const picked = e.target.closest("[data-pick]");
+      if (picked) {
+        const key = picked.dataset.pick;
+        const value = picked.dataset.value;
+        me[key] = value;
+        render();
+        return;
+      }
+
+      const answerButton = e.target.closest("[data-answer]");
+      if (answerButton && screen === "game") {
+        const index = Number(answerButton.dataset.answer);
+        await submitAnswer(index, false);
+        return;
+      }
+
+      const action = e.target.closest("[data-action]");
+      if (!action) return;
+
+      switch (action.dataset.action) {
+        case "create":
+          await createRoom();
+          break;
+        case "join":
+          await joinRoom();
+          break;
+        case "start":
+          await startGame();
+          break;
+        case "score":
+          await scoreRound();
+          break;
+        case "reload":
+          location.reload();
+          break;
+        case "copy":
+          if (roomCodeValue) {
+            navigator.clipboard?.writeText(roomCodeValue).then(() => {
+              action.textContent = "✓ Kopiert";
+            }).catch(() => {});
+          }
+          break;
+      }
+    });
+
     render();
-  }else{
-    alert("Raum nicht gefunden!");
-  }
-}
-
-async function start(){
-  if(!host)return;
-  room={...room,status:"game"};
-  await update(ref(database,"rooms/"+code),{status:"game"});
-  screen="game";
-  round=0;
-  time=15;
-  locked=false;
-  answers={};
-  startAt=Date.now();
-  runTimer();
-  render();
-}
-
-function runTimer(){
-  clearInterval(timer);
-  timer=setInterval(()=>{
-    if(screen!=="game"||locked){clearInterval(timer);return}
-    time--;
-    if(time<=0){time=0;submit(-1);clearInterval(timer)}
-    render();
-  },1000);
-}
-
-async function submit(i){
-  if(locked)return;
-  selected=i;
-  locked=true;
-  clearInterval(timer);
-  const q=room.questions[round];
-  const elapsed=Math.min(15000,Date.now()-startAt);
-  const payload={id:me.id,index:i,elapsed,correct:i===q.c};
-  answers[me.id]=payload;
-  await set(ref(database,"rooms/"+code+"/answers/"+me.id),payload);
-  render();
-}
-
-async function scoreRound(){
-  const correct=Object.values(answers).filter(x=>x.correct).sort((a,b)=>a.elapsed-b.elapsed);
-  const bonus=[1000,700,500];
-  const updated=players.map(p=>{
-    const rank=correct.findIndex(x=>x.id===p.id);
-    return {...p,score:p.score+(rank>=0?(bonus[rank]||250)+Math.max(0,Math.round((15000-correct[rank].elapsed)/50)):0)};
-  });
-  for(const p of updated){
-    await update(ref(database,"rooms/"+code+"/players/"+p.id),{score:p.score});
-  }
-  players=updated;
-  render();
-}
-
-async function next(){
-  const done=round>=room.questions.length-1;
-  if(done){
-    await update(ref(database,"rooms/"+code),{status:"result"});
-    screen="result";
-    clearInterval(timer);
-  }else{
-    round++;
-    selected=null;
-    locked=false;
-    answers={};
-    time=15;
-    startAt=Date.now();
-    await update(ref(database,"rooms/"+code),{round});
-    runTimer();
-  }
-  render();
-}
-
-appElement.addEventListener("input",e=>{
-  if(e.target.id==="name")name=e.target.value;
-  if(e.target.id==="code"){
-    code=e.target.value.replace(/\D/g,"").slice(0,6);
-    e.target.value=code;
-    const b=appElement.querySelector('[data-action="join"]');
-    if(b)b.disabled=code.length!==6;
-  }
-});
-
-appElement.addEventListener("click",async e=>{
-  const p=e.target.closest("[data-pick]");
-  if(p){me[p.dataset.pick]=p.dataset.value;render();return}
-  const a=e.target.closest("[data-answer]");
-  if(a){submit(Number(a.dataset.answer));return}
-  const b=e.target.closest("[data-action]");
-  if(!b)return;
-  switch(b.dataset.action){
-    case"create":await create();break;
-    case"join":await join();break;
-    case"start":await start();break;
-    case"score":await scoreRound();break;
-    case"next":await next();break;
-    case"reload":location.reload();break;
-    case"copy":navigator.clipboard?.writeText(room.code).then(()=>{b.textContent="✓ Kopiert"}).catch(()=>{});break;
-  }
-});
-
-render();
-</script></body></html>
+  </script>
+</body>
+</html>

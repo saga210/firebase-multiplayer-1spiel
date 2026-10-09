@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wissens-Race – Live Quiz Arena</title>
+<style>
+:root{color-scheme:dark;--cyan:#67e8f9;--violet:#8b5cf6;--ink:#090d24}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#253266,var(--ink) 52%);color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;padding:22px}button,input{font:inherit}button{cursor:pointer;border:0;color:inherit}.wrap{max-width:1120px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:28px}.eyebrow{color:var(--cyan);font-size:12px;font-weight:900;letter-spacing:.25em}h1{font-size:clamp(30px,5vw,48px);margin:5px 0;font-weight:950}h2{font-size:26px;margin:0 0 8px}.pill,.panel,.answer,.player{background:#ffffff12;border:1px solid #ffffff1c}.pill{padding:10px 16px;border-radius:30px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:22px}.panel{border-radius:28px;padding:26px;box-shadow:0 18px 50px #0002}.muted{color:#cbd5e1}.field{width:100%;background:#020617b8;border:1px solid #ffffff28;border-radius:14px;padding:13px 15px;color:white;margin:8px 0 18px;outline:none}.field:focus{border-color:var(--cyan)}label{font-weight:750;font-size:14px}.avatarbox{background:#0003;border-radius:22px;padding:18px;text-align:center;margin:18px 0}.avatar{font-size:54px;display:flex;flex-direction:column;align-items:center;line-height:1.1}.avatar .hair{font-size:24px;margin-bottom:-5px}.avatar .clothes{font-size:30px;margin-top:-7px}.options{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px}.choice{background:#ffffff14;border-radius:12px;padding:9px 12px;font-size:24px}.choice.active{background:var(--cyan);color:#0f172a;outline:2px solid white}.btn{background:linear-gradient(100deg,#22d3ee,#8b5cf6);color:#07111f;font-weight:900;padding:13px 20px;border-radius:15px;box-shadow:0 8px 25px #22d3ee22}.btn:disabled{opacity:.4;cursor:not-allowed}.btn.ghost{background:#ffffff1a;color:white;box-shadow:none}.stack{display:grid;gap:18px}.center{text-align:center}.roomcode{font-size:clamp(40px,8vw,70px);font-weight:950;letter-spacing:.15em;color:var(--cyan);margin:10px}.players{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:12px;margin:24px 0}.player{background:#0003;border-radius:17px;padding:14px;text-align:center}.gamegrid{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:20px}.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.timer{font-size:30px;font-weight:950;color:var(--cyan)}.timer.low{color:#f87171}.bar{height:10px;background:#ffffff18;border-radius:20px;overflow:hidden;margin-bottom:18px}.bar>div{height:100%;background:linear-gradient(90deg,#22d3ee,#8b5cf6);transition:width .3s}.question{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;min-height:120px;display:grid;place-items:center}.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.answer{border-radius:16px;padding:18px;text-align:left;font-weight:750;font-size:17px}.answer:hover{background:#ffffff25}.answer:disabled{cursor:default}.answer.correct{background:#10b981;color:#07111f}.answer.wrong{background:#ef4444}.answer .letter{opacity:.6;margin-right:10px}.feedback{background:#0003;border-radius:16px;padding:16px;margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.rankrow{display:flex;align-items:center;gap:12px;background:#0003;border-radius:13px;padding:11px;margin-top:10px}.rankrow .avatar{font-size:30px}.rankrow .clothes{font-size:20px}.rankrow .hair{font-size:14px}.score{color:var(--cyan);font-size:13px}footer{text-align:center;color:#94a3b8;font-size:12px;margin:28px 0 6px}.hidden{display:none!important}.small{font-size:13px}
+@media(max-width:760px){body{padding:14px}.layout,.gamegrid{grid-template-columns:1fr}.answers{grid-template-columns:1fr}.panel{padding:20px}header{align-items:flex-start;flex-direction:column}.topline{align-items:flex-start}.question{min-height:90px}}
+</style>
+</head>
+<body><div class="wrap">
+<header><div><div class="eyebrow">LIVE QUIZ ARENA</div><h1>Wissens-Race <span style="color:#fde047">⚡</span></h1></div><div class="pill">👥 Gemeinsam spielen</div></header>
+<main id="app"></main>
+<footer>Lokaler Multiplayer-Prototyp · Für mehrere Spieler denselben Raumcode verwenden. Multiplayer funktioniert in Tabs/Fenstern desselben Browsers.</footer>
+</div>
+<script>
+const QUESTIONS = [
+  {d:"Anfänger",q:"Wie heißt die Hauptstadt von Deutschland?",a:["Berlin","Bonn","Hamburg","München"],c:0},
+  {d:"Anfänger",q:"Wie viele Tage hat eine Woche?",a:["5","6","7","8"],c:2},
+  {d:"Anfänger",q:"Welcher Planet ist der Sonne am nächsten?",a:["Venus","Merkur","Mars","Erde"],c:1},
+  {d:"Anfänger",q:"Wie viele Kontinente gibt es üblicherweise?",a:["5","6","7","8"],c:2},
+  {d:"Anfänger",q:"Welches Tier gilt als größtes Landtier?",a:["Giraffe","Elefant","Nashorn","Nilpferd"],c:1},
+  {d:"Anfänger",q:"Welche Farbe entsteht aus Blau und Gelb?",a:["Lila","Orange","Grün","Rot"],c:2},
+  {d:"Anfänger",q:"Wie viele Minuten hat eine Stunde?",a:["30","45","60","100"],c:2},
+  {d:"Anfänger",q:"Welches Organ pumpt Blut durch den Körper?",a:["Lunge","Leber","Herz","Magen"],c:2},
+  {d:"Anfänger",q:"In welchem Land stehen die Pyramiden von Gizeh?",a:["Mexiko","Ägypten","Indien","Griechenland"],c:1},
+  {d:"Anfänger",q:"Wie viele Beine hat eine Spinne?",a:["6","8","10","12"],c:1},
+  {d:"Anfänger",q:"Welcher Ozean ist der größte?",a:["Atlantik","Indischer Ozean","Pazifik","Arktischer Ozean"],c:2},
+  {d:"Anfänger",q:"Was gefriert bei 0 Grad Celsius?",a:["Öl","Wasser","Salz","Sand"],c:1},
+  {d:"Anfänger",q:"Wie heißt unser natürlicher Satellit?",a:["Sonne","Mond","Mars","Venus"],c:1},
+  {d:"Anfänger",q:"Welche Jahreszeit folgt auf den Frühling?",a:["Herbst","Winter","Sommer","Regenzeit"],c:2},
+  {d:"Anfänger",q:"Welches Gas brauchen Menschen zum Atmen?",a:["Helium","Sauerstoff","Wasserstoff","Neon"],c:1},
+  {d:"Anfänger",q:"Wie viele Stunden hat ein Tag?",a:["12","20","24","48"],c:2},
+  {d:"Anfänger",q:"Welches Instrument hat schwarze und weiße Tasten?",a:["Trompete","Geige","Klavier","Flöte"],c:2},
+  {d:"Fortgeschritten",q:"Wer schrieb das Drama „Faust“?",a:["Goethe","Schiller","Kafka","Brecht"],c:0},
+  {d:"Fortgeschritten",q:"Wie lautet das chemische Symbol für Gold?",a:["Ag","Au","Fe","Go"],c:1},
+  {d:"Fortgeschritten",q:"Welcher Fluss fließt durch Wien?",a:["Rhein","Elbe","Donau","Seine"],c:2},
+  {d:"Fortgeschritten",q:"Wie viele Bundesländer hat Deutschland?",a:["14","15","16","17"],c:2},
+  {d:"Fortgeschritten",q:"In welchem Jahr fiel die Berliner Mauer?",a:["1979","1989","1991","1999"],c:1},
+  {d:"Fortgeschritten",q:"Welche Einheit misst elektrische Spannung?",a:["Ampere","Watt","Volt","Ohm"],c:2},
+  {d:"Fortgeschritten",q:"Welcher Knochen ist der längste im menschlichen Körper?",a:["Oberarmknochen","Schienbein","Oberschenkelknochen","Wirbelsäule"],c:2},
+  {d:"Fortgeschritten",q:"Was ist die Quadratwurzel aus 144?",a:["10","11","12","14"],c:2},
+  {d:"Fortgeschritten",q:"Wer malte die Mona Lisa?",a:["Michelangelo","Leonardo da Vinci","Picasso","Rembrandt"],c:1},
+  {d:"Fortgeschritten",q:"Welche Sprache wird in Brasilien hauptsächlich gesprochen?",a:["Spanisch","Portugiesisch","Französisch","Englisch"],c:1},
+  {d:"Fortgeschritten",q:"Wie heißt die Hauptstadt von Kanada?",a:["Toronto","Vancouver","Ottawa","Montreal"],c:2},
+  {d:"Fortgeschritten",q:"Welcher Planet ist für seine auffälligen Ringe bekannt?",a:["Mars","Jupiter","Saturn","Neptun"],c:2},
+  {d:"Fortgeschritten",q:"Was bedeutet H₂O?",a:["Sauerstoff","Wasser","Salz","Kohlendioxid"],c:1},
+  {d:"Fortgeschritten",q:"Welche Zahl ist eine Primzahl?",a:["21","27","29","39"],c:2},
+  {d:"Fortgeschritten",q:"Auf welchem Kontinent liegt Argentinien?",a:["Afrika","Asien","Südamerika","Europa"],c:2},
+  {d:"Fortgeschritten",q:"Wie heißt die Lehre von den Himmelskörpern?",a:["Geologie","Astronomie","Biologie","Meteorologie"],c:1},
+  {d:"Fortgeschritten",q:"Welches Metall ist bei Raumtemperatur flüssig?",a:["Eisen","Aluminium","Quecksilber","Kupfer"],c:2},
+  {d:"Profi",q:"Welches Element hat die Ordnungszahl 6?",a:["Sauerstoff","Kohlenstoff","Stickstoff","Helium"],c:1},
+  {d:"Profi",q:"Wie heißt die Hauptstadt von Australien?",a:["Sydney","Melbourne","Canberra","Perth"],c:2},
+  {d:"Profi",q:"Wer formulierte die drei klassischen Bewegungsgesetze?",a:["Einstein","Galilei","Newton","Kepler"],c:2},
+  {d:"Profi",q:"Welcher Frieden beendete 1648 den Dreißigjährigen Krieg?",a:["Westfälischer Frieden","Wiener Kongress","Versailler Vertrag","Augsburger Frieden"],c:0},
+  {d:"Profi",q:"Wie viele Chromosomen hat eine menschliche Körperzelle normalerweise?",a:["23","44","46","48"],c:2},
+  {d:"Profi",q:"Welche Stadt liegt an Bosporus und zwei Kontinenten?",a:["Athen","Istanbul","Kairo","Rom"],c:1},
+  {d:"Profi",q:"Was misst die Richterskala klassisch?",a:["Windstärke","Luftdruck","Erdbebenstärke","Lautstärke"],c:2},
+  {d:"Profi",q:"Welches Land besitzt die längste Küstenlinie?",a:["Australien","Russland","Kanada","Indonesien"],c:2},
+  {d:"Profi",q:"Wie heißt die kleinste Einheit digitaler Information?",a:["Byte","Bit","Hertz","Pixel"],c:1},
+  {d:"Profi",q:"Wer komponierte die 9. Sinfonie mit der „Ode an die Freude“?",a:["Mozart","Bach","Beethoven","Wagner"],c:2},
+  {d:"Profi",q:"Welche Blutgruppe gilt bei roten Blutkörperchen als Universalspender?",a:["AB positiv","0 negativ","A positiv","B negativ"],c:1},
+  {d:"Profi",q:"Welcher Kontinent hat die meisten Staaten?",a:["Europa","Afrika","Asien","Südamerika"],c:1},
+  {d:"Profi",q:"Wie heißt der Prozess, bei dem Pflanzen Lichtenergie nutzen?",a:["Osmose","Gärung","Fotosynthese","Transpiration"],c:2},
+  {d:"Profi",q:"Welcher Staat ist vollständig von Südafrika umgeben?",a:["Lesotho","Eswatini","Botswana","Namibia"],c:0},
+  {d:"Profi",q:"Welche Einheit entspricht einem Joule pro Sekunde?",a:["Volt","Watt","Pascal","Newton"],c:1},
+  {d:"Profi",q:"Wie nennt man ein Wort, das vorwärts und rückwärts gleich lautet?",a:["Akronym","Synonym","Palindrom","Homonym"],c:2}
+];
+const ANIMALS=["🦊","🐼","🐯","🐸","🐨","🦁","🐰","🐵"], HAIR=["✨","🟤","🟡","🟣","🔵"], CLOTHES=["👕","🧥","🥋","👗","🦺"], ACCESSORIES=["🚲","🛹","☁️","Ohne"];
+const uid=()=>Math.random().toString(36).slice(2,10), roomCode=()=>String(Math.floor(100000+Math.random()*900000)), shuffle=a=>[...a].sort(()=>Math.random()-.5);
+const $=id=>document.getElementById(id);
+let screen="home", name="", code="", host=false, room=null, players=[], round=0, selected=null, locked=false, time=15, answers={}, timer=null, channel=null, startAt=0;
+let me={id:uid(),name:"",animal:"🦊",hair:"✨",clothes:"👕",accessory:"Ohne",score:0};
+const app=$("app");
+function avatar(p,large=false){return `<div class="avatar"><span class="hair">${p.hair||"✨"}</span><span>${p.animal||"🦊"}</span><span class="clothes">${p.clothes||"👕"}</span>${p.accessory&&p.accessory!=="Ohne"?`<span>${p.accessory}</span>`:""}</div>`}
+function btn(text,action,disabled=false,ghost=false){return `<button class="btn ${ghost?"ghost":""}" data-action="${action}" ${disabled?"disabled":""}>${text}</button>`}
+function render(){
+if(screen==="home"){app.innerHTML=`<div class="layout"><section class="panel"><h2>Dein Quiz-Tier</h2><p class="muted">Gestalte deine Figur und betrete die Arena.</p><div class="avatarbox">${avatar(me,true)}</div><label>Spielername</label><input id="name" class="field" placeholder="Dein Name" value="${esc(name)}"><label>Tiergesicht</label><div class="options">${ANIMALS.map(x=>pick("animal",x)).join("")}</div><label>Haare / Effekt</label><div class="options">${HAIR.map(x=>pick("hair",x)).join("")}</div><label>Kleidung</label><div class="options">${CLOTHES.map(x=>pick("clothes",x)).join("")}</div><label>Accessoire</label><div class="options">${ACCESSORIES.map(x=>pick("accessory",x)).join("")}</div></section><section class="stack"><div class="panel"><h2>👑 Neuen Raum eröffnen</h2><p class="muted">Du leitest das Spiel und startest 15 zufällige Fragen aus dem 50er-Pool.</p>${btn("Raum erstellen","create")}</div><div class="panel"><h2>↪ Mit Code beitreten</h2><input id="code" class="field center" maxlength="6" inputmode="numeric" placeholder="6-stelliger Raumcode" value="${esc(code)}"><div>${btn("Beitreten","join",code.length!==6)}</div></div></section></div>`}
+if(screen==="lobby"){app.innerHTML=`<section class="panel center"><div class="muted">Raumcode</div><div class="roomcode">${room.code}</div><button class="pill" data-action="copy">▢ Code kopieren</button><h2 style="margin-top:30px">Spieler in der Lobby (${players.length})</h2><div class="players">${players.map(p=>`<div class="player">${avatar(p)}<b>${esc(p.name)}</b></div>`).join("")}</div>${host?btn("▶ Spiel starten","start"): `<p style="color:#fde68a">Der Gastgeber startet gleich…</p>`}</section>`}
+if(screen==="game"){const q=room?.questions?.[round];if(!q){screen="result";render();return}const ranking=[...players].sort((a,b)=>b.score-a.score);app.innerHTML=`<div class="gamegrid"><section><div class="topline"><span class="pill">Frage ${round+1}/${room.questions.length} · ${q.d}</span><span class="timer ${time<=5?"low":""}">${time}s</span></div><div class="bar"><div style="width:${time/15*100}%"></div></div><div class="panel"><div class="question">${q.q}</div><div class="answers">${q.a.map((x,i)=>`<button class="answer ${locked&&i===q.c?"correct":locked&&selected===i?"wrong":""}" data-answer="${i}" ${locked?"disabled":""}><span class="letter">${String.fromCharCode(65+i)}</span>${x}</button>`).join("")}</div>${locked?`<div class="feedback"><div>${avatar(me)}<b>${selected===q.c?"Richtig! 🎉":"Richtig ist: "+q.a[q.c]}</b><div class="muted small">Warte auf die Mitspieler.</div></div>${host?`<div>${btn("Punkte berechnen","score",false,true)} ${btn("Weiter","next")}</div>`:""}</div>`:""}</div></section><aside class="panel"><h2>🏆 Rangliste</h2>${ranking.map((p,i)=>`<div class="rankrow"><b>${i+1}</b>${avatar(p)}<div><b>${esc(p.name)}</b><div class="score">${p.score} Punkte</div></div></div>`).join("")}</aside></div>`}
+if(screen==="result"){const ranking=[...players].sort((a,b)=>b.score-a.score),winner=ranking[0]||me;app.innerHTML=`<section class="panel center"><div style="font-size:52px">🏆</div><h2 style="font-size:38px">Das Rennen ist beendet!</h2><div class="avatarbox" style="display:inline-block">${avatar(winner)}</div><h2 style="color:#fde047">${esc(winner.name||"Niemand")} gewinnt mit ${winner.score||0} Punkten!</h2><div style="max-width:600px;margin:20px auto">${ranking.map((p,i)=>`<div class="rankrow"><b>#${i+1}</b>${avatar(p)}<b style="flex:1;text-align:left">${esc(p.name)}</b><b>${p.score}</b></div>`).join("")}</div>${btn("↻ Neues Spiel","reload")}</section>`}
+}
+function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function pick(key,x){return `<button class="choice ${me[key]===x?"active":""}" data-pick="${key}" data-value="${x}">${x}</button>`}
+function connect(rc,isHost){if(channel)channel.close();channel=new BroadcastChannel("wissens-race-"+rc);channel.onmessage=e=>handle(e.data,rc,isHost)}
+function post(type,data={}){channel?.postMessage({type,data,from:me.id})}
+function savePlayers(ps){players=ps;localStorage.setItem("wr-"+(room?.code||code),JSON.stringify(ps))}
+function handle(msg,rc,isHost){const {type,data}=msg;
+if(type==="join"&&isHost){if(!players.some(x=>x.id===data.id)){players=[...players,data];localStorage.setItem("wr-"+rc,JSON.stringify(players))}post("state",{players,room:JSON.parse(localStorage.getItem("room-"+rc)||"null")});render()}
+if(type==="state"){players=data.players||[];if(data.room){room=data.room;screen=room.status==="game"?"game":"lobby"}render()}
+if(type==="start"){room=data;round=0;screen="game";time=15;locked=false;answers={};startAt=Date.now();runTimer();render()}
+if(type==="answer"&&isHost){answers[data.id]=data}
+if(type==="scores"){players=data.players;locked=true;render()}
+if(type==="next"){players=data.players;if(data.done){screen="result";clearInterval(timer)}else{round=data.round;selected=null;locked=false;answers={};time=15;startAt=Date.now();runTimer()}render()}
+}
+function create(){name=$("name").value.trim();me={...me,name:name||"Spieler 1"};host=true;const rc=roomCode();code=rc;room={code:rc,status:"lobby",questions:shuffle(QUESTIONS).slice(0,15)};players=[me];localStorage.setItem("room-"+rc,JSON.stringify(room));localStorage.setItem("wr-"+rc,JSON.stringify(players));connect(rc,true);screen="lobby";render()}
+function join(){name=$("name")?.value.trim()||name;code=$("code").value.trim();me={...me,name:name||"Gast"};host=false;connect(code,false);room=JSON.parse(localStorage.getItem("room-"+code)||"null");players=JSON.parse(localStorage.getItem("wr-"+code)||"[]");if(room){screen="lobby";render()}post("join",me);setTimeout(()=>post("join",me),150)}
+function start(){room={...room,status:"game"};localStorage.setItem("room-"+room.code,JSON.stringify(room));screen="game";round=0;time=15;locked=false;answers={};startAt=Date.now();post("start",room);runTimer();render()}
+function runTimer(){clearInterval(timer);timer=setInterval(()=>{if(screen!=="game"||locked){clearInterval(timer);return}time--;if(time<=0){time=0;submit(-1);clearInterval(timer)}render()},1000)}
+function submit(i){if(locked)return;selected=i;locked=true;clearInterval(timer);const q=room.questions[round],elapsed=Math.min(15000,Date.now()-startAt),payload={id:me.id,index:i,elapsed,correct:i===q.c};answers[me.id]=payload;post("answer",payload);render()}
+function scoreRound(){const correct=Object.values(answers).filter(x=>x.correct).sort((a,b)=>a.elapsed-b.elapsed),bonus=[1000,700,500];players=players.map(p=>{const rank=correct.findIndex(x=>x.id===p.id);return {...p,score:p.score+(rank>=0?(bonus[rank]||250)+Math.max(0,Math.round((15000-correct[rank].elapsed)/50)):0)}});savePlayers(players);post("scores",{players,correctIds:correct.map(x=>x.id)});render()}
+function next(){const done=round>=room.questions.length-1,data={done,round:round+1,players};post("next",data);if(done){screen="result";clearInterval(timer)}else{round++;selected=null;locked=false;answers={};time=15;startAt=Date.now();runTimer()}render()}
+app.addEventListener("input",e=>{if(e.target.id==="name")name=e.target.value;if(e.target.id==="code"){code=e.target.value.replace(/\D/g,"").slice(0,6);e.target.value=code;const b=app.querySelector('[data-action="join"]');if(b)b.disabled=code.length!==6}});
+app.addEventListener("click",e=>{const p=e.target.closest("[data-pick]");if(p){me[p.dataset.pick]=p.dataset.value;render();return}const a=e.target.closest("[data-answer]");if(a){submit(Number(a.dataset.answer));return}const b=e.target.closest("[data-action]");if(!b)return;switch(b.dataset.action){case"create":create();break;case"join":join();break;case"start":start();break;case"score":scoreRound();break;case"next":next();break;case"reload":location.reload();break;case"copy":navigator.clipboard?.writeText(room.code).then(()=>{b.textContent="✓ Kopiert"}).catch(()=>{});break}});
+render();
+</script></body></html>
